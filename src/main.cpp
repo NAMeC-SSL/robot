@@ -9,12 +9,15 @@
 #include "sensor/ir.h"
 #include "ssl-kicker.h"
 
+#define ROBOT_ID 6
+
 #define HALF_PERIOD 500ms
 #define ROBOT_RADIUS 0.085
 
 // Radio frequency
-#define RF_FREQUENCY_1 2402
-#define RF_FREQUENCY_2 2460
+#define RF_FREQUENCY_1 2470
+#define RF_FREQUENCY_2 2480
+
 using namespace sixtron;
 
 static SWO swo;
@@ -150,10 +153,16 @@ void on_rx_interrupt(uint8_t *data, size_t data_size)
         /* Now we are ready to decode the message. */
         bool status = pb_decode(&rx_stream, RadioCommand_fields, &ai_message);
 
+        event_queue.call(printf, "[IR]: %d\n", ir::present());
+
         /* Check for errors... */
         if (!status) {
             event_queue.call(printf, "[IA] Decoding failed: %s\n", PB_GET_ERROR(&rx_stream));
         } else {
+            if (ai_message.robot_id != ROBOT_ID) {
+                return;
+            }
+
             event_queue.call(apply_motor_speed);
             if (ai_message.kick == Kicker::Kicker_CHIP) {
                 kicker.kick1(ai_message.kick_power);
@@ -181,7 +190,7 @@ void on_rx_interrupt(uint8_t *data, size_t data_size)
         }
     }
 
-    event_queue.call(send_feedback);
+    // event_queue.call(send_feedback);
 
     timeout.detach();
     timeout.attach(stop_motors, 500ms);
