@@ -9,14 +9,14 @@
 #include "sensor/ir.h"
 #include "ssl-kicker.h"
 
-#define ROBOT_ID 6
+#define ROBOT_ID 4
 
 #define HALF_PERIOD 500ms
 #define ROBOT_RADIUS 0.085
 
 // Radio frequency
-#define RF_FREQUENCY_1 2470
-#define RF_FREQUENCY_2 2480
+#define RF_FREQUENCY_1 2508
+#define RF_FREQUENCY_2 2510
 
 using namespace sixtron;
 
